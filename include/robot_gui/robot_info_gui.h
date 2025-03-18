@@ -19,11 +19,14 @@ public:
   void run();
   void
   RobotInfoCallback(const robotinfo_msgs::RobotInfo10Fields::ConstPtr &msg);
+  void odometryCallback(const nav_msgs::Odometry::ConstPtr &msg);
 
 private:
   std::string robot_info_msg[10];
+  nav_msgs::Odometry odom_msg;
 
   ros::Publisher cmd_vel_pub;
   ros::Subscriber robot_info_sub;
+  ros::Subscriber odom_sub;
   const std::string WINDOW_NAME = "ROBOT CVUI";
 };

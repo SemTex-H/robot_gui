@@ -15,6 +15,11 @@ ROBOT_CVUI::ROBOT_CVUI() {
   robot_info_sub = nh.subscribe<robotinfo_msgs::RobotInfo10Fields>(
       "/robot_info", 2, &ROBOT_CVUI::RobotInfoCallback, this);
   cmd_vel_pub = nh.advertise<geometry_msgs::Twist>("/cmd_vel", 10);
+  odom_sub = nh.subscribe("/odom", 10, &ROBOT_CVUI::odometryCallback, this);
+}
+
+void ROBOT_CVUI::odometryCallback(const nav_msgs::Odometry::ConstPtr &msg) {
+  odom_msg = *msg;
 }
 
 void ROBOT_CVUI::RobotInfoCallback(
@@ -66,13 +71,24 @@ void ROBOT_CVUI::run() {
     cmd_vel_pub.publish(cmd_vel_msg);
     // Current velocity
     cvui::window(frame, 10, 340, 145, 40, "Linear velocity:");
-    cvui::printf(frame, 12, 375, 0.4, 0xff0000, "%.2f m/sec",
+    cvui::printf(frame, 12, 365, 0.4, 0xff0000, "%.2f m/sec",
                  cmd_vel_msg.linear.x);
 
     cvui::window(frame, 165, 340, 145, 40, "Angular velocity:");
-    cvui::printf(frame, 167, 375, 0.4, 0xff0000, "%.2f rad/sec",
+    cvui::printf(frame, 167, 365, 0.4, 0xff0000, "%.2f rad/sec",
                  cmd_vel_msg.angular.z);
     // Robot position
+    cvui::window(frame, 5, 390, 95, 40, "X");
+    cvui::printf(frame, 7, 415, 0.4, 0x00ff00, "%.2f",
+                 odom_msg.pose.pose.position.x);
+
+    cvui::window(frame, 110, 390, 95, 40, "Y");
+    cvui::printf(frame, 112, 415, 0.4, 0x00ff00, "%.2f",
+                 odom_msg.pose.pose.position.y);
+
+    cvui::window(frame, 215, 390, 95, 40, "Z");
+    cvui::printf(frame, 217, 415, 0.4, 0x00ff00, "%.2f",
+                 odom_msg.pose.pose.position.z);
 
     // Update
     cvui::update();
