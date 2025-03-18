@@ -41,29 +41,38 @@ void ROBOT_CVUI::run() {
   while (ros::ok()) {
     frame = cv::Scalar(49, 52, 49);
     // General Info Area
-    cvui::window(frame, 10, 10, 300, 130, "Info");
-    for (int i = 1; i <= 8; i++) {
-      cvui::printf(frame, 12, i * 15 + 20, 0.4, 0xffffff, "%s",
+    cvui::window(frame, 10, 10, 300, 150, "Info");
+    for (int i = 0; i <= 8; i++) {
+      cvui::printf(frame, 12, i * 15 + 35, 0.4, 0xffffff, "%s",
                    robot_info_msg[i].c_str());
     }
     // Teleoperation Buttons
-    if (cvui::button(frame, 110, 150, 100, 50, "Forward")) {
+    if (cvui::button(frame, 110, 170, 100, 50, "Forward")) {
       cmd_vel_msg.linear.x += 0.1;
     }
-    if (cvui::button(frame, 5, 205, 100, 50, "Left")) {
+    if (cvui::button(frame, 5, 225, 100, 50, "Left")) {
       cmd_vel_msg.angular.z += 0.1;
     }
-    if (cvui::button(frame, 110, 205, 100, 50, "Stop")) {
+    if (cvui::button(frame, 110, 225, 100, 50, "Stop")) {
       cmd_vel_msg.linear.x = 0.0;
       cmd_vel_msg.angular.z = 0.0;
     }
-    if (cvui::button(frame, 215, 205, 100, 50, "Right")) {
+    if (cvui::button(frame, 215, 225, 100, 50, "Right")) {
       cmd_vel_msg.angular.z -= 0.1;
     }
-    if (cvui::button(frame, 110, 260, 100, 50, "Backward")) {
+    if (cvui::button(frame, 110, 280, 100, 50, "Backward")) {
       cmd_vel_msg.linear.x -= 0.1;
     }
     cmd_vel_pub.publish(cmd_vel_msg);
+    // Current velocity
+    cvui::window(frame, 10, 340, 145, 40, "Linear velocity:");
+    cvui::printf(frame, 12, 375, 0.4, 0xff0000, "%.2f m/sec",
+                 cmd_vel_msg.linear.x);
+
+    cvui::window(frame, 165, 340, 145, 40, "Angular velocity:");
+    cvui::printf(frame, 167, 375, 0.4, 0xff0000, "%.2f rad/sec",
+                 cmd_vel_msg.angular.z);
+    // Robot position
 
     // Update
     cvui::update();
