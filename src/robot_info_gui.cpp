@@ -8,7 +8,7 @@
 
 ROBOT_CVUI::ROBOT_CVUI() {
   ros::NodeHandle nh;
-  sub_ = nh.subscribe<robotinfo_msgs::RobotInfo10Fields>(
+  robot_info_sub = nh.subscribe<robotinfo_msgs::RobotInfo10Fields>(
       "/robot_info", 2, &ROBOT_CVUI::RobotInfoCallback, this);
 }
 
@@ -34,20 +34,16 @@ void ROBOT_CVUI::run() {
   cvui::init(WINDOW_NAME);
 
   while (ros::ok()) {
-    // Fill the frame with a nice color
     frame = cv::Scalar(49, 52, 49);
-    // Create window at (220, 20) with size 250x80 (width x height) and title
+    // General Info Area
     cvui::window(frame, 10, 10, 300, 130, "Info");
-
-    // Show how many times the button has been clicked inside the window.
     for (int i = 1; i <= 8; i++) {
       cvui::printf(frame, 12, i * 15 + 20, 0.4, 0xffffff, "%s",
                    robot_info_msg[i].c_str());
     }
-    // Update cvui internal stuff
+
     cvui::update();
 
-    // Show everything on the screen
     cv::imshow(WINDOW_NAME, frame);
 
     // Check if ESC key was pressed

@@ -23,7 +23,6 @@ public:
 private:
   std::string robot_info_msg[10];
 
-  ros::Publisher pub_;
-  ros::Subscriber sub_;
+  ros::Subscriber robot_info_sub;
   const std::string WINDOW_NAME = "ROBOT CVUI";
 };
