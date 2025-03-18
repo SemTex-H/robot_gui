@@ -1,4 +1,5 @@
 #include "robot_gui/robot_info_gui.h"
+#include "std_srvs/Trigger.h"
 
 #include <ros/ros.h>
 #define CVUI_IMPLEMENTATION
@@ -16,6 +17,8 @@ ROBOT_CVUI::ROBOT_CVUI() {
       "/robot_info", 2, &ROBOT_CVUI::RobotInfoCallback, this);
   cmd_vel_pub = nh.advertise<geometry_msgs::Twist>("/cmd_vel", 10);
   odom_sub = nh.subscribe("/odom", 10, &ROBOT_CVUI::odometryCallback, this);
+  distance_tracker_service_client =
+      nh.serviceClient<std_srvs::Trigger>("/get_distance");
 }
 
 void ROBOT_CVUI::odometryCallback(const nav_msgs::Odometry::ConstPtr &msg) {
@@ -39,6 +42,8 @@ void ROBOT_CVUI::RobotInfoCallback(
 void ROBOT_CVUI::run() {
   cv::Mat frame = cv::Mat(750, 320, CV_8UC3);
   geometry_msgs::Twist cmd_vel_msg;
+  std_srvs::Trigger get_distance_msg;
+  std::string distance;
   // Init a OpenCV window and tell cvui to use it.
   cv::namedWindow(WINDOW_NAME);
   cvui::init(WINDOW_NAME);
@@ -89,6 +94,13 @@ void ROBOT_CVUI::run() {
     cvui::window(frame, 215, 390, 95, 40, "Z");
     cvui::printf(frame, 217, 415, 0.4, 0x00ff00, "%.2f",
                  odom_msg.pose.pose.position.z);
+    // Distance traveled service
+    if (cvui::button(frame, 5, 450, 95, 95, "Calculate")) {
+      if (distance_tracker_service_client.call(get_distance_msg))
+        distance = get_distance_msg.response.message;
+    }
+    cvui::window(frame, 105, 450, 200, 95, "Distance:");
+    cvui::printf(frame, 150, 485, 1.5, 0x0000ff, "%s", distance.c_str());
 
     // Update
     cvui::update();

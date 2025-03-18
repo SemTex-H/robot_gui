@@ -1,5 +1,6 @@
 #pragma once
 
+#include "ros/service_client.h"
 #include "ros/subscriber.h"
 #include <string>
 #define CVUI_IMPLEMENTATION
@@ -28,5 +29,6 @@ private:
   ros::Publisher cmd_vel_pub;
   ros::Subscriber robot_info_sub;
   ros::Subscriber odom_sub;
+  ros::ServiceClient distance_tracker_service_client;
   const std::string WINDOW_NAME = "ROBOT CVUI";
 };
