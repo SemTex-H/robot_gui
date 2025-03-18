@@ -5,11 +5,16 @@
 #include "robot_gui/cvui.h"
 #include "robotinfo_msgs/RobotInfo10Fields.h"
 #include "ros/node_handle.h"
+#include <geometry_msgs/Twist.h>
+#include <nav_msgs/Odometry.h>
+#include <ros/ros.h>
+#include <std_msgs/String.h>
 
 ROBOT_CVUI::ROBOT_CVUI() {
   ros::NodeHandle nh;
   robot_info_sub = nh.subscribe<robotinfo_msgs::RobotInfo10Fields>(
       "/robot_info", 2, &ROBOT_CVUI::RobotInfoCallback, this);
+  cmd_vel_pub = nh.advertise<geometry_msgs::Twist>("/cmd_vel", 10);
 }
 
 void ROBOT_CVUI::RobotInfoCallback(
@@ -28,7 +33,7 @@ void ROBOT_CVUI::RobotInfoCallback(
 
 void ROBOT_CVUI::run() {
   cv::Mat frame = cv::Mat(750, 320, CV_8UC3);
-  int count = 0;
+  geometry_msgs::Twist cmd_vel_msg;
   // Init a OpenCV window and tell cvui to use it.
   cv::namedWindow(WINDOW_NAME);
   cvui::init(WINDOW_NAME);
@@ -41,7 +46,26 @@ void ROBOT_CVUI::run() {
       cvui::printf(frame, 12, i * 15 + 20, 0.4, 0xffffff, "%s",
                    robot_info_msg[i].c_str());
     }
+    // Teleoperation Buttons
+    if (cvui::button(frame, 110, 150, 100, 50, "Forward")) {
+      cmd_vel_msg.linear.x += 0.1;
+    }
+    if (cvui::button(frame, 5, 205, 100, 50, "Left")) {
+      cmd_vel_msg.angular.z += 0.1;
+    }
+    if (cvui::button(frame, 110, 205, 100, 50, "Stop")) {
+      cmd_vel_msg.linear.x = 0.0;
+      cmd_vel_msg.angular.z = 0.0;
+    }
+    if (cvui::button(frame, 215, 205, 100, 50, "Right")) {
+      cmd_vel_msg.angular.z -= 0.1;
+    }
+    if (cvui::button(frame, 110, 260, 100, 50, "Backward")) {
+      cmd_vel_msg.linear.x -= 0.1;
+    }
+    cmd_vel_pub.publish(cmd_vel_msg);
 
+    // Update
     cvui::update();
 
     cv::imshow(WINDOW_NAME, frame);
