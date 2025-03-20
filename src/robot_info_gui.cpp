@@ -96,11 +96,11 @@ void ROBOT_CVUI::run() {
     cvui::printf(frame, 217, 415, 0.4, 0x00ff00, "%.2f",
                  odom_msg.pose.pose.position.z);
     // Distance traveled service
-    if (cvui::button(frame, 5, 450, 95, 40, "Get Distance")) {
+    if (cvui::button(frame, 5, 450, 95, 45, "Get Distance")) {
       if (distance_tracker_service_client.call(get_distance_msg))
         distance = get_distance_msg.response.message;
     }
-    if (cvui::button(frame, 5, 500, 95, 40, "Reset Distance")) {
+    if (cvui::button(frame, 5, 500, 95, 45, "Reset Distance")) {
       distance = "0.00";
       if (reset_service_client.call(reset_distance_msg)) {
         continue;
