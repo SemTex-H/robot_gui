@@ -19,6 +19,7 @@ ROBOT_CVUI::ROBOT_CVUI() {
   odom_sub = nh.subscribe("/odom", 10, &ROBOT_CVUI::odometryCallback, this);
   distance_tracker_service_client =
       nh.serviceClient<std_srvs::Trigger>("/get_distance");
+  reset_service_client = nh.serviceClient<std_srvs::Trigger>("/reset_distance");
 }
 
 void ROBOT_CVUI::odometryCallback(const nav_msgs::Odometry::ConstPtr &msg) {
@@ -42,7 +43,7 @@ void ROBOT_CVUI::RobotInfoCallback(
 void ROBOT_CVUI::run() {
   cv::Mat frame = cv::Mat(750, 320, CV_8UC3);
   geometry_msgs::Twist cmd_vel_msg;
-  std_srvs::Trigger get_distance_msg;
+  std_srvs::Trigger get_distance_msg, reset_distance_msg;
   std::string distance;
   // Init a OpenCV window and tell cvui to use it.
   cv::namedWindow(WINDOW_NAME);
@@ -95,12 +96,18 @@ void ROBOT_CVUI::run() {
     cvui::printf(frame, 217, 415, 0.4, 0x00ff00, "%.2f",
                  odom_msg.pose.pose.position.z);
     // Distance traveled service
-    if (cvui::button(frame, 5, 450, 95, 95, "Calculate")) {
+    if (cvui::button(frame, 5, 450, 95, 40, "Get Distance")) {
       if (distance_tracker_service_client.call(get_distance_msg))
         distance = get_distance_msg.response.message;
     }
+    if (cvui::button(frame, 5, 500, 95, 40, "Reset Distance")) {
+      distance = "0.00";
+      if (reset_service_client.call(reset_distance_msg)) {
+        continue;
+      }
+    }
     cvui::window(frame, 105, 450, 200, 95, "Distance:");
-    cvui::printf(frame, 150, 485, 1.5, 0x0000ff, "%s", distance.c_str());
+    cvui::printf(frame, 150, 485, 1.5, 0xffff00, "%s", distance.c_str());
 
     // Update
     cvui::update();

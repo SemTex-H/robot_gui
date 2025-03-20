@@ -29,6 +29,6 @@ private:
   ros::Publisher cmd_vel_pub;
   ros::Subscriber robot_info_sub;
   ros::Subscriber odom_sub;
-  ros::ServiceClient distance_tracker_service_client;
+  ros::ServiceClient distance_tracker_service_client, reset_service_client;
   const std::string WINDOW_NAME = "ROBOT CVUI";
 };
